@@ -1,6 +1,6 @@
 {
     "name": "htcw_m5tough_power",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Provides support for the M5 Stack Tough AXP192 power module",
     "keywords": ["m5stack","tough","m5-stack","m5","AXP192","power","battery"],
     "authors": {

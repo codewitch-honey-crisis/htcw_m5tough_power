@@ -30,10 +30,14 @@ SOFTWARE.
 #else 
 #ifdef ESP_PLATFORM
 #include <stdint.h>
-//#include <driver/i2c.h>
-//#include <soc/gpio_sig_map.h>
+#include <esp_idf_version.h>
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+#include <driver/i2c_master.h>
 #else
-  #error "This driver requires an M5Stack Core2"
+#include <driver/i2c.h>
+#endif
+#else
+  #error "This driver requires an M5Stack Tough"
 #endif
 #endif
 #define SLEEP_MSEC(us) (((uint64_t)us) * 1000L)
@@ -66,8 +70,18 @@ enum struct m5tough_charge_current {
 class m5tough_power {
  public:
   
-  m5tough_power();
-  void initialize(bool init_i2c = true);
+  m5tough_power(
+#ifdef ARDUINO
+    TwoWire& bus_handle = Wire1
+#else
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    i2c_master_bus_handle_t bus_handle = nullptr
+#else
+    i2c_port_t = I2C_NUM_1
+#endif
+#endif
+  );
+  void initialize();
   void lcd_dim(float brightness);
   bool battery_state();
 
@@ -131,4 +145,15 @@ class m5tough_power {
   uint32_t Read24bit(uint8_t Addr);
   uint32_t Read32bit(uint8_t Addr);
   void ReadBuff(uint8_t Addr, uint8_t Size, uint8_t *Buff);
+#ifdef ARDUINO
+    TwoWire& m_i2c_bus;
+#else
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+  i2c_master_bus_handle_t m_i2c_bus;
+  i2c_master_dev_handle_t m_i2c;
+#else
+    i2c_port_t m_i2c_bus;
+#endif
+#endif
+
 };
